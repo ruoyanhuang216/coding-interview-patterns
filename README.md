@@ -6,8 +6,8 @@ A personal reference guide for coding interview preparation. Each pattern includ
 
 | # | Pattern | Key Idea | Groups |
 |---|---------|----------|--------|
-| 1 | [Two Pointers](patterns/two-pointers.md) | Search space reduction on linear data using two traversal indices | 5 archetypes, 10 problems |
-| 2 | [Fast & Slow Pointers](patterns/fast-and-slow-pointers.md) | Different-speed traversal for midpoints, cycles, and implicit graphs | 3 archetypes, 8 problems |
+| 1 | [Two Pointers](patterns/two-pointers.md) | Search space reduction on linear data using two traversal indices | 5 archetypes, 23 problems |
+| 2 | [Fast & Slow Pointers](patterns/fast-and-slow-pointers.md) | Different-speed traversal for midpoints, cycles, and implicit graphs | 3 archetypes, 9 problems |
 
 ## How This Guide Is Organized
 

@@ -47,19 +47,31 @@ L + x + nC = 2(L + x)
 
 ### Group 1: The "Find the Middle" Foundation
 
-**Problems**: 876, 234, 2130, 2674
+| # | Problem | Difficulty |
+|---|---------|------------|
+| 234 | Palindrome Linked List | Easy |
+| 876 | Middle of the Linked List | Easy |
+| 2130 | Maximum Twin Sum of a Linked List | Medium |
+| 2674 | Split a Circular Linked List | Medium |
 
 **Interview logistics**: Both pointers start at the head. `slow` moves 1 step, `fast` moves 2 steps. When `fast` reaches the end (`None`) or the last node, `slow` is sitting exactly on the middle node. In FAANG interviews, this is almost never the whole problem — it's Step 1. Step 2 usually involves reversing the second half starting from `slow`, and Step 3 involves comparing or merging the two halves (palindrome check, twin sum, etc.).
 
 ### Group 2: Explicit Cycle Detection
 
-**Problems**: 141, 142, 202
+| # | Problem | Difficulty |
+|---|---------|------------|
+| 141 | Linked List Cycle | Easy |
+| 142 | Linked List Cycle II | Medium |
+| 202 | Happy Number | Easy |
 
 **Interview logistics**: You're checking for loops. For linked lists, it's standard Floyd's. For math transformations like Happy Number (202), treat the mathematical operation `sum_of_squares(n)` as the `.next` pointer. If `slow == fast`, a cycle exists. If `fast` hits 1 or `None`, no cycle.
 
 ### Group 3: Disguised Cycles (Indices as Pointers)
 
-**Problems**: 287, 457
+| # | Problem | Difficulty |
+|---|---------|------------|
+| 287 | Find the Duplicate Number | Medium |
+| 457 | Circular Array Loop | Medium |
 
 **Interview logistics**: Hard/Medium arrays disguised as linked lists. The value at `array[i]` tells you the next index to jump to. Use Floyd's algorithm to find the cycle. In 287 (Duplicate Number), multiple nodes point to the same index, creating a cycle at the duplicate. In 457 (Circular Array), you must also enforce single-direction movement and reject self-loops.
 
@@ -67,7 +79,11 @@ L + x + nC = 2(L + x)
 
 ## Problem Checklist
 
-### 1. LC 876 — Middle of the Linked List `Easy` (Group 1: Baseline)
+### Group 1: The "Find the Middle" Foundation
+
+---
+
+#### LC 876 — Middle of the Linked List `Easy`
 
 **The spiel**: "To find the middle in a single pass without extra memory, I use a fast and slow pointer. The slow pointer advances one step at a time, while the fast pointer advances two. Because fast travels at twice the speed, by the time it reaches the end, slow will be situated exactly at the halfway mark."
 
@@ -87,7 +103,7 @@ def middleNode(head):
 
 ---
 
-### 2. LC 234 — Palindrome Linked List `Easy` (Group 1: Compound)
+#### LC 234 — Palindrome Linked List `Easy`
 
 **The spiel**: "I will break this into three steps to achieve O(1) space. First, I use fast/slow pointers to find the middle. Second, I reverse the second half in-place. Finally, I use two pointers — one at the head and one at the start of the reversed second half — and compare values to verify symmetry."
 
@@ -123,7 +139,7 @@ def isPalindrome(head) -> bool:
 
 ---
 
-### 3. LC 2130 — Maximum Twin Sum of a Linked List `Medium` (Group 1: Compound)
+#### LC 2130 — Maximum Twin Sum of a Linked List `Medium`
 
 **The spiel**: "The 'twins' mirror a palindrome structure — first pairs with last, second with second-to-last. To pair them up without O(N) extra space, I use fast/slow pointers to find the midpoint, reverse the second half, then iterate both halves simultaneously maintaining a running maximum of their summed values."
 
@@ -154,7 +170,40 @@ def pairSum(head) -> int:
 
 ---
 
-### 4. LC 141 — Linked List Cycle `Easy` (Group 2: Baseline)
+#### LC 2674 — Split a Circular Linked List `Medium`
+
+**The spiel**: "I use fast/slow pointers adapted for a circular list — instead of checking for `None`, I stop when `fast.next` or `fast.next.next` loops back to the head. When slow reaches the midpoint, I split by making `slow.next` the head of the second list. I then close both halves into their own circular loops: `slow` points back to the original head, and the original tail (tracked via `fast`) points back to the second head."
+
+**Complexity**: Time O(N), Space O(1).
+
+```python
+def splitCircularLinkedList(head):
+    slow = fast = head
+
+    # Adapt the standard loop for circular lists
+    while fast.next != head and fast.next.next != head:
+        slow = slow.next
+        fast = fast.next.next
+
+    # If even number of nodes, advance fast one more step to reach the tail
+    if fast.next.next == head:
+        fast = fast.next
+
+    # Now: slow = end of first half, fast = tail of original circular list
+    head2 = slow.next
+    slow.next = head    # Close first circular list
+    fast.next = head2   # Close second circular list
+
+    return [head, head2]
+```
+
+---
+
+### Group 2: Explicit Cycle Detection
+
+---
+
+#### LC 141 — Linked List Cycle `Easy`
 
 **The spiel**: "I will use Floyd's Cycle Detection algorithm. By initializing a slow pointer moving one step and a fast pointer moving two steps, I guarantee that if a cycle exists, the fast pointer will eventually lap the slow pointer and they will point to the same node. If the fast pointer reaches a null terminator, the list is linear."
 
@@ -175,7 +224,7 @@ def hasCycle(head) -> bool:
 
 ---
 
-### 5. LC 142 — Linked List Cycle II `Medium` (Group 2: The Math Proof)
+#### LC 142 — Linked List Cycle II `Medium`
 
 **The spiel**: "I detect the cycle using Floyd's algorithm. Once they meet, I rely on the mathematical proof that the distance from the head to the cycle's start equals the distance from the meeting point to the cycle's start. I leave one pointer at the meeting point, reset the other to the head, and move both at speed 1. They collide exactly at the start of the cycle."
 
@@ -203,7 +252,7 @@ def detectCycle(head):
 
 ---
 
-### 6. LC 202 — Happy Number `Easy` (Group 2: Implicit Data Structure)
+#### LC 202 — Happy Number `Easy`
 
 **The spiel**: "This is cycle detection in disguise. Instead of traversing node pointers, the 'next node' is generated by the sum-of-squares operation. I use fast and slow pointers, applying the operation once for slow and twice for fast. If fast reaches 1, the number is happy. If they meet at any other number, we're trapped in a cycle."
 
@@ -226,7 +275,11 @@ def isHappy(n: int) -> bool:
 
 ---
 
-### 7. LC 287 — Find the Duplicate Number `Medium` (Group 3: Array as Graph)
+### Group 3: Disguised Cycles (Indices as Pointers)
+
+---
+
+#### LC 287 — Find the Duplicate Number `Medium`
 
 **The spiel**: "Because the array contains N+1 integers strictly in the range [1, N], we can treat array values as 'next' pointers (index -> nums[index]). A duplicate means multiple indices point to the same target, creating a cycle. I use Floyd's algorithm to find the intersection point, then apply phase two to find the cycle entrance, which corresponds to the duplicate number."
 
@@ -253,7 +306,7 @@ def findDuplicate(nums: list[int]) -> int:
 
 ---
 
-### 8. LC 457 — Circular Array Loop `Medium` (Group 3: Constraints & Pruning)
+#### LC 457 — Circular Array Loop `Medium`
 
 **The spiel**: "This requires cycle detection where array values dictate relative jumps. For every unvisited index, I launch a fast/slow traversal. I enforce two strict invariants: movement direction must remain constant, and cycle length must be > 1 (no self-loops). To prevent O(N^2) worst-case, once a path is confirmed invalid, I execute a pruning step to mark all nodes on that path as 'dead ends' (0), ensuring O(N) amortized time."
 
