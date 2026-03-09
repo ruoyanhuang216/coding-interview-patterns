@@ -171,6 +171,12 @@ def summaryRanges(nums: list[int]) -> list[str]:
 
 **The spiel**: "Two sorted, non-overlapping lists. I use two pointers, one per list. For each pair, the intersection start is `max(start_i, start_j)` and the intersection end is `min(end_i, end_j)`. If start <= end, the intersection is valid and I append it. Then I advance the pointer whose interval ends earlier — that interval can't intersect with anything else."
 
+**Step-by-Step Example:**
+`L1: [[0, 4], [7, 12]]`, `L2: [[1, 5], [8, 10]]`
+1. Compare `[0, 4]` and `[1, 5]`. Max start is `1`, Min end is `4`. `1 <= 4`, append `[1, 4]`. Because `4 < 5`, `L1` finishes first. Move `L1` pointer `i += 1`.
+2. Compare `[7, 12]` and `[1, 5]`. Max start is `7`, Min end is `5`. `7 > 5` (Invalid). Because `5 < 12`, `L2` finishes first. Move `L2` pointer `j += 1`.
+3. Compare `[7, 12]` and `[8, 10]`. Max start is `8`, Min end is `10`. `8 <= 10`, append `[8, 10]`. Move `L2` pointer `j += 1`. Loop ends.
+
 **Complexity**: Time O(M + N), Space O(M + N) for the result.
 
 ```python
@@ -270,6 +276,34 @@ def minMeetingRooms(intervals: list[list[int]]) -> int:
     return len(free_rooms)
 ```
 
+**Mathematical proof (sweep line equivalence)**: At any instant `t`, the number of rooms in use equals the number of meetings that have started by `t` minus the number that have ended by `t`:
+
+> `active_meetings(t) = started_by(t) − ended_by(t)`
+
+If we sort all start times and all end times into two separate arrays, we can sweep them with two pointers `i` and `j`. When `starts[i] < ends[j]`, a new meeting begins before the earliest active meeting ends — we need an additional room. When `starts[i] >= ends[j]`, a meeting has ended — a room is freed and we advance `j`. The peak value of `i − j` over the sweep equals the maximum concurrency.
+
+```python
+def minMeetingRooms_sweep(intervals: list[list[int]]) -> int:
+    starts = sorted(s for s, _ in intervals)
+    ends = sorted(e for _, e in intervals)
+
+    rooms = 0
+    max_rooms = 0
+    j = 0  # Pointer into ends[]
+
+    for i in range(len(starts)):
+        if starts[i] < ends[j]:
+            # A meeting starts before the earliest end — need another room
+            rooms += 1
+        else:
+            # A meeting ended — reuse that room
+            j += 1
+
+        max_rooms = max(max_rooms, rooms)
+
+    return max_rooms
+```
+
 ---
 
 #### LC 1094 — Car Pooling `Medium`
@@ -307,6 +341,14 @@ def carPooling(trips: list[list[int]], capacity: int) -> bool:
 #### LC 435 — Non-overlapping Intervals `Medium`
 
 **The spiel**: "I sort by end time to apply the greedy 'earliest finish' strategy. I keep the first interval and track its end. For each subsequent interval: if it starts before the current end, it overlaps — I remove it (increment count). If it doesn't overlap, I keep it and update the current end. Sorting by end ensures the intervals we keep leave maximum room for future intervals."
+
+**Step-by-Step Example:** `[[1, 2], [2, 3], [3, 4], [1, 3]]`
+1. **Sort by End Time:** `[[1, 2], [2, 3], [1, 3], [3, 4]]`
+2. **Keep `[1, 2]`:** `current_end = 2`.
+3. **Check `[2, 3]`:** Start `2 >= current_end 2`. No overlap. Keep it. `current_end = 3`.
+4. **Check `[1, 3]`:** Start `1 < current_end 3`. Overlap! Because we sorted by end time, the ones we kept are mathematically better. Drop this one. `removals += 1`.
+5. **Check `[3, 4]`:** Start `3 >= current_end 3`. No overlap. Keep it. `current_end = 4`.
+*Result: 1 removal.*
 
 **Complexity**: Time O(N log N), Space O(1).
 
